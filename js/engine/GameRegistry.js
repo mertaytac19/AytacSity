@@ -1,7 +1,6 @@
 /**
  * NEUROSYNAPSE - Central Game Registry
  * Single source of truth for all game metadata, categories, and class references.
- * Adding a new game = 1 file + 1 GameRegistry.register() call. Zero HTML changes.
  */
 
 class GameRegistry {
@@ -11,13 +10,10 @@ class GameRegistry {
 
   /**
    * Register a game with its full metadata.
-   * @param {string} key - Unique game identifier (e.g., 'chromashift')
-   * @param {Object} config - Game metadata and class reference
    */
   static register(key, config) {
     this._games[key] = { key, ...config };
 
-    // Auto-track unique categories in registration order
     if (config.category && !this._categories[config.category]) {
       this._categories[config.category] = {
         id: config.category,
@@ -31,8 +27,6 @@ class GameRegistry {
 
   /**
    * Get a game's metadata by key.
-   * @param {string} key
-   * @returns {Object|null}
    */
   static get(key) {
     return this._games[key] || null;
@@ -40,7 +34,6 @@ class GameRegistry {
 
   /**
    * Get all registered games as an object.
-   * @returns {Object}
    */
   static getAll() {
     return { ...this._games };
@@ -48,7 +41,6 @@ class GameRegistry {
 
   /**
    * Get all game keys as an array.
-   * @returns {string[]}
    */
   static getAllKeys() {
     return Object.keys(this._games);
@@ -56,8 +48,6 @@ class GameRegistry {
 
   /**
    * Get games filtered by category.
-   * @param {string} category
-   * @returns {Object}
    */
   static getByCategory(category) {
     const result = {};
@@ -69,7 +59,6 @@ class GameRegistry {
 
   /**
    * Get all unique categories with metadata.
-   * @returns {Object}
    */
   static getCategories() {
     return { ...this._categories };
@@ -77,7 +66,6 @@ class GameRegistry {
 
   /**
    * Get category keys in registration order.
-   * @returns {string[]}
    */
   static getCategoryOrder() {
     return [...this._categoryOrder];
@@ -85,7 +73,6 @@ class GameRegistry {
 
   /**
    * Get total number of registered games.
-   * @returns {number}
    */
   static count() {
     return Object.keys(this._games).length;
@@ -93,37 +80,55 @@ class GameRegistry {
 
   /**
    * Instantiate a game by key.
-   * @param {string} key - Game identifier
-   * @param {Object} engine - The NeuroSynapseApp engine reference
-   * @returns {BaseGame|null}
+   * Supports BOTH GameClass and create function formats.
    */
   static create(key, engine) {
     const config = this._games[key];
-    if (!config || !config.GameClass) {
-      console.error(`[GameRegistry] Game "${key}" not found or has no GameClass.`);
+    if (!config) {
+      console.error(`[GameRegistry] Game "${key}" not found.`);
       return null;
     }
-    return new config.GameClass(engine);
+
+    // Yöntem 1: GameClass (yeni format)
+    if (config.GameClass) {
+      try {
+        return new config.GameClass(engine);
+      } catch (e) {
+        console.error(`[GameRegistry] Error creating "${key}" with GameClass:`, e);
+        return null;
+      }
+    }
+
+    // Yöntem 2: create fonksiyonu (eski format)
+    if (typeof config.create === 'function') {
+      try {
+        return config.create(engine);
+      } catch (e) {
+        console.error(`[GameRegistry] Error creating "${key}" with create:`, e);
+        return null;
+      }
+    }
+
+    console.error(`[GameRegistry] Game "${key}" has no GameClass or create function.`);
+    return null;
   }
 
   /**
-   * Generate dashboard featured game card HTML for a game.
-   * @param {string} key
-   * @returns {string} HTML string
+   * Generate dashboard featured game card HTML.
    */
   static renderFeaturedCard(key) {
     const g = this._games[key];
     if (!g) return '';
     return `
       <div class="game-card glass-panel" data-game="${key}">
-        <div class="game-badge ${g.tagClass}">${g.categoryLabel}</div>
-        <div class="game-icon-orb ${g.orbClass}">
-          <span>${g.icon}</span>
+        <div class="game-badge ${g.tagClass || ''}">${g.categoryLabel || g.categoryName || ''}</div>
+        <div class="game-icon-orb ${g.orbClass || ''}">
+          <span>${g.icon || '🎮'}</span>
         </div>
         <h4>${g.name} (${g.subtitle})</h4>
-        <p>${g.description}</p>
+        <p>${g.description || ''}</p>
         <div class="game-card-footer">
-          <span class="tier-label">Zorluk: ${g.difficultyLabel}</span>
+          <span class="tier-label">Zorluk: ${g.difficultyLabel || 'Normal'}</span>
           <button class="btn-play-card" onclick="app.launchGame('${key}')">Oyna</button>
         </div>
       </div>
@@ -131,24 +136,22 @@ class GameRegistry {
   }
 
   /**
-   * Generate games hub detail card HTML for a game.
-   * @param {string} key
-   * @returns {string} HTML string
+   * Generate games hub detail card HTML.
    */
   static renderHubCard(key) {
     const g = this._games[key];
     if (!g) return '';
     const skillsHtml = (g.skills || []).map(s => `<span>${s}</span>`).join('');
     return `
-      <div class="hub-game-card glass-panel" data-category="${g.category}">
+      <div class="hub-game-card glass-panel" data-category="${g.category || ''}">
         <div class="hub-card-top">
-          <span class="category-badge ${g.catClass}">${g.categoryName}</span>
-          <span class="plays-count">${g.tagline}</span>
+          <span class="category-badge ${g.catClass || ''}">${g.categoryName || ''}</span>
+          <span class="plays-count">${g.tagline || ''}</span>
         </div>
         <div class="hub-card-main">
-          <div class="hub-icon-wrap ${g.orbClass}">${g.icon}</div>
+          <div class="hub-icon-wrap ${g.orbClass || ''}">${g.icon || '🎮'}</div>
           <h3>${g.name}: ${g.subtitle}</h3>
-          <p>${g.fullDescription}</p>
+          <p>${g.fullDescription || g.description || ''}</p>
           <div class="skills-targeted">
             ${skillsHtml}
           </div>
@@ -162,7 +165,6 @@ class GameRegistry {
 
   /**
    * Generate filter pill buttons HTML.
-   * @returns {string} HTML string
    */
   static renderFilterPills() {
     let html = `<button class="pill active" data-filter="all">Tümü (${this.count()})</button>`;
