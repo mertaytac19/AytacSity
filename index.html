@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEUROSYNAPSE // İleri Düzey Bilişsel Gelişim Laboratuvarı</title>
+  <meta name="description"
+    content="Lumosity ötesinde, çoklu duyusal ve kuantum bilişsel mekaniklerle tasarlanmış yeni nesil zihin antrenmanı platformu.">
+
+  <!-- Google Fonts: Syne, Outfit, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Outfit:wght@300;400;600;700;900&family=Syne:wght@700;800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- Background Canvas for Neural Particle Simulation -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Sound Ambient Player / Binaural Wave Controller Bar -->
+  <div id="audio-hud" class="glass-panel">
+    <div class="audio-info">
+      <div class="sound-wave-icon">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <span id="ambient-title">Binaural Alpha (10Hz) Zihin Odaklama Dalgası</span>
+    </div>
+    <div class="audio-actions">
+      <button id="btn-toggle-binaural" class="hud-btn" title="Binaural Zemin Dalgasını Aç/Kapat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M11 5L6 9H2v6h4l5 4V5z" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+        </svg>
+        <span class="btn-label">Binaural Ses</span>
+      </button>
+      <button id="btn-toggle-sfx" class="hud-btn active" title="Ses Efektlerini Aç/Kapat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <span class="btn-label">SFX: Açık</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Master App Container -->
+  <div id="app" class="app-container">
+
+    <!-- Top Navigation Header -->
+    <header class="app-header glass-panel">
+      <div class="logo-group">
+        <div class="logo-orb">
+          <div class="orb-core"></div>
+        </div>
+        <div class="logo-text">
+          <h1>NEURO<span>SYNAPSE</span></h1>
+          <p class="subtitle">QUANTUM COGNITIVE LAB // v2.5</p>
+        </div>
+      </div>
+
+      <nav class="main-nav">
+        <button class="nav-link active" data-view="dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Komuta Merkezi</span>
+        </button>
+        <button class="nav-link" data-view="training">
+          <span class="nav-icon">⚡</span>
+          <span>Günlük Protokol</span>
+        </button>
+        <button class="nav-link" data-view="games">
+          <span class="nav-icon">🧪</span>
+          <span>Nöro-Simülatörler</span>
+        </button>
+        <button class="nav-link" data-view="analytics">
+          <span class="nav-icon">🧠</span>
+          <span>Bilişsel Harita</span>
+        </button>
+      </nav>
+
+      <div class="user-stats-pill glass-panel">
+        <div class="stat-item">
+          <span class="stat-label">SERİ</span>
+          <span class="stat-val streak-val" id="hud-streak">🔥 1 Gün</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">NÖRO-SKOR</span>
+          <span class="stat-val" id="hud-neuro-score">1,240</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">SEVİYE</span>
+          <span class="stat-val level-badge" id="hud-level">Kuantum Zihin</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN VIEWPORT -->
+    <main id="main-content" class="viewport">
+
+      <!-- ================= DASHBOARD VIEW ================= -->
+      <section id="view-dashboard" class="view active">
+        <div class="dashboard-grid">
+
+          <!-- Hero Daily Training Callout -->
+          <div class="dash-hero-card glass-panel glow-cyan">
+            <div class="hero-content">
+              <div class="badge-tag">GÜNLÜK BİLİŞSEL PROTOKOL</div>
+              <h2>Bugünün Zihinsel Optimizasyon Seansı</h2>
+              <p>Çalışma belleği, ters mantık inhibisyonu ve ışık hızında uzamsal rota analizi için özel kalibre edilmiş
+                3 turlu antrenman seansı sizi bekliyor.</p>
+
+              <div class="protocol-metrics">
+                <div class="p-metric">
+                  <span class="p-icon">⏱️</span>
+                  <span>~4.5 Dakika</span>
+                </div>
+                <div class="p-metric">
+                  <span class="p-icon">🎯</span>
+                  <span>3 Hedef Alan</span>
+                </div>
+                <div class="p-metric">
+                  <span class="p-icon">🧬</span>
+                  <span>+150 Nöro-Puan</span>
+                </div>
+              </div>
+
+              <div class="hero-cta-group">
+                <button id="btn-start-daily" class="btn-primary pulse-btn">
+                  <span class="btn-icon">⚡</span>
+                  GÜNLÜK PROTOKOLÜ BAŞLAT
+                </button>
+                <button id="btn-calibrate-test" class="btn-secondary">
+                  <span class="btn-icon">🔬</span> Hızlı Zihin Testi
+                </button>
+              </div>
+            </div>
+            <div class="hero-visual">
+              <div class="hologram-brain">
+                <div class="ring r1"></div>
+                <div class="ring r2"></div>
+                <div class="ring r3"></div>
+                <div class="brain-glow"></div>
+                <span class="brain-symbol">🧠</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats & Radar Preview -->
+          <div class="dash-radar-card glass-panel">
+            <div class="card-header">
+              <h3>Bilişsel Matris Özeti</h3>
+              <span class="sub-tag">Gerçek Zamanlı</span>
+            </div>
+            <div class="radar-container-mini">
+              <canvas id="mini-radar-canvas" width="280" height="240"></canvas>
+            </div>
+            <div class="radar-stats-quick">
+              <div class="quick-stat">
+                <span class="qs-label">En Güçlü Boyut:</span>
+                <span class="qs-val strong" id="quick-strongest">İşlem Hızı (%88)</span>
+              </div>
+              <div class="quick-stat">
+                <span class="qs-label">Gelişim Alanı:</span>
+                <span class="qs-val improve" id="quick-weakest">Ters Mantık & İnhibisyon</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Games Showcase -->
+          <div class="dash-games-section">
+            <div class="section-title-row">
+              <h3>Öne Çıkan Nöro-Simülatörler</h3>
+              <button class="link-btn" onclick="app.navigate('games')">Tümünü İncele &rarr;</button>
+            </div>
+            <div class="featured-games-grid" id="featured-games-container">
+              <!-- Dynamically populated by GameRegistry -->
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= PROTOCOL / TRAINING VIEW ================= -->
+      <section id="view-training" class="view">
+        <div class="protocol-view-wrapper glass-panel">
+          <div class="protocol-header">
+            <h2>GÜNLÜK KİŞİSELLEŞTİRİLMİŞ PROTOKOL</h2>
+            <p>Yapay zeka nöro-adaptasyon algoritmamız, eksik hissettiğiniz bilişsel kasları hedef alacak 3 aşamalı özel
+              simülasyon hazırladı.</p>
+          </div>
+
+          <div class="protocol-stages">
+            <div class="stage-card" id="stage-1-card">
+              <div class="stage-num">01</div>
+              <div class="stage-info">
+                <h3>Isınma & İnhibisyon</h3>
+                <p>ChromaPulse // Dikkat filtreleme ve ani kural değişimi adaptasyonu</p>
+                <span class="stage-status status-ready">Sırada Bekliyor</span>
+              </div>
+              <button class="stage-btn" onclick="app.startDailyStage(0)">Aşama 1 Başlat</button>
+            </div>
+
+            <div class="stage-card locked" id="stage-2-card">
+              <div class="stage-num">02</div>
+              <div class="stage-info">
+                <h3>Uzamsal & Hızlı Planlama</h3>
+                <p>Synapse Cascade // Nöron foton rotalama & akış tahmini</p>
+                <span class="stage-status status-locked">Aşama 1 Tamamlanınca Açılır</span>
+              </div>
+              <button class="stage-btn disabled" disabled>Kilitli</button>
+            </div>
+
+            <div class="stage-card locked" id="stage-3-card">
+              <div class="stage-num">03</div>
+              <div class="stage-info">
+                <h3>Kapasite & Bellek Zirvesi</h3>
+                <p>Echo Resonance // Çok Boyutlu N-Back matris sentezi</p>
+                <span class="stage-status status-locked">Aşama 2 Tamamlanınca Açılır</span>
+              </div>
+              <button class="stage-btn disabled" disabled>Kilitli</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ALL GAMES HUB VIEW ================= -->
+      <section id="view-games" class="view">
+        <div class="games-hub-header">
+          <div>
+            <h2>Nöro-Simülatör Laboratuvarı</h2>
+            <p>Hedeflemek istediğiniz spesifik bilişsel disiplini seçin ve sınırlarınızı zorlayın.</p>
+          </div>
+          <div class="filter-pills" id="hub-filter-pills">
+            <!-- Dynamically populated by GameRegistry -->
+          </div>
+        </div>
+
+        <div class="games-hub-grid" id="games-hub-container">
+          <!-- Dynamically populated by GameRegistry -->
+        </div>
+      </section>
+
+      <!-- ================= ANALYTICS & RADAR VIEW ================= -->
+      <section id="view-analytics" class="view">
+        <div class="analytics-layout">
+
+          <div class="analytics-left glass-panel">
+            <div class="section-title">
+              <h2>Bilişsel Profil Haritası</h2>
+              <p>5 Ana Zihinsel Boyuttaki Performansınız ve Beyin Yaşı Hesaplaması</p>
+            </div>
+
+            <div class="radar-large-wrapper">
+              <canvas id="large-radar-canvas" width="460" height="420"></canvas>
+            </div>
+
+            <div class="brain-age-badge-box">
+              <div class="ba-item">
+                <span class="ba-title">Tahmini Bilişsel Esneklik Yaşı</span>
+                <span class="ba-number" id="calc-brain-age">21 Yaş Seviyesi</span>
+              </div>
+              <div class="ba-item">
+                <span class="ba-title">Genel Beyin Performans İndeksi (BPI)</span>
+                <span class="ba-number" id="calc-bpi">1,480 BPI</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="analytics-right">
+
+            <div class="dimensions-breakdown glass-panel">
+              <h3>Bilişsel Boyut Detayları</h3>
+              <div class="dim-list">
+
+                <div class="dim-item">
+                  <div class="dim-header">
+                    <span class="dim-name">⚡ İnhibisyon & Esneklik (ChromaPulse)</span>
+                    <span class="dim-val" id="score-dim-flex">84/100</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-flex" id="bar-dim-flex" style="width: 84%"></div>
+                  </div>
+                </div>
+
+                <div class="dim-item">
+                  <div class="dim-header">
+                    <span class="dim-name">📐 Uzamsal Muhakeme (Synapse Cascade)</span>
+                    <span class="dim-val" id="score-dim-spatial">78/100</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-spatial" id="bar-dim-spatial" style="width: 78%"></div>
+                  </div>
+                </div>
+
+                <div class="dim-item">
+                  <div class="dim-header">
+                    <span class="dim-name">🔮 Çalışma Belleği (Echo Resonance)</span>
+                    <span class="dim-val" id="score-dim-memory">91/100</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-memory" id="bar-dim-memory" style="width: 91%"></div>
+                  </div>
+                </div>
+
+                <div class="dim-item">
+                  <div class="dim-header">
+                    <span class="dim-name">⏱️ İşlem Hızı (Temporal Paradox)</span>
+                    <span class="dim-val" id="score-dim-speed">86/100</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-speed" id="bar-dim-speed" style="width: 86%"></div>
+                  </div>
+                </div>
+
+                <div class="dim-item">
+                  <div class="dim-header">
+                    <span class="dim-name">🎯 Odak & Dikkat Kararlılığı</span>
+                    <span class="dim-val" id="score-dim-focus">89/100</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill fill-focus" id="bar-dim-focus" style="width: 89%"></div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="achievements-card glass-panel">
+              <h3>Kazanılan Nöro-Rozetler</h3>
+              <div class="badges-grid" id="badges-container">
+                <!-- Dynamically filled -->
+              </div>
+            </div>
+
+            <div class="action-reset-box">
+              <button class="btn-secondary" onclick="analytics.resetHistory()">Verileri Sıfırla / Yeniden Kalibre
+                Et</button>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= GAME RUNTIME MODAL / ARENA ================= -->
+    <div id="game-arena" class="modal-backdrop">
+      <div class="game-container glass-panel">
+
+        <!-- Game Arena Header -->
+        <div class="game-arena-header">
+          <div class="game-meta">
+            <button id="btn-exit-game" class="btn-icon-round" title="Simülasyondan Çık">✕</button>
+            <div class="title-wrap">
+              <h2 id="current-game-title">ChromaPulse</h2>
+              <span id="current-game-mode-badge" class="badge-tag">GÜNLÜK MOD</span>
+            </div>
+          </div>
+
+          <!-- Dynamic In-Game HUD -->
+          <div class="in-game-hud">
+            <div class="hud-pill">
+              <span class="hud-label">SÜRE</span>
+              <span class="hud-val timer-val" id="game-timer">45s</span>
+            </div>
+            <div class="hud-pill">
+              <span class="hud-label">SKOR</span>
+              <span class="hud-val score-val" id="game-score">0</span>
+            </div>
+            <div class="hud-pill">
+              <span class="hud-label">KOMBO</span>
+              <span class="hud-val combo-val" id="game-combo">x1</span>
+            </div>
+            <div class="hud-pill">
+              <span class="hud-label">DOĞRULUK</span>
+              <span class="hud-val accuracy-val" id="game-accuracy">100%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Game Stage Mounting Area -->
+        <div id="game-mount-point" class="game-mount">
+          <!-- Game Specific HTML/Canvas injected dynamically here -->
+        </div>
+
+        <!-- In-game Rule Reminder Overlay / Notification Bar -->
+        <div id="game-rule-bar" class="game-rule-bar">
+          <span id="game-rule-text">Kural Hazırlanıyor...</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= GAME OVER SUMMARY MODAL ================= -->
+    <div id="modal-summary" class="modal-backdrop">
+      <div class="summary-card glass-panel glow-cyan">
+        <div class="summary-header">
+          <div class="summary-icon">🏆</div>
+          <h2>SİMÜLASYON TAMAMLANDI</h2>
+          <p id="summary-game-name">ChromaPulse Bilişsel Seansı</p>
+        </div>
+
+        <div class="summary-score-big">
+          <div class="score-circle">
+            <span class="score-num" id="summary-final-score">2,450</span>
+            <span class="score-label">NÖRO-PUAN</span>
+          </div>
+        </div>
+
+        <div class="summary-metrics-grid">
+          <div class="sum-box">
+            <span class="sb-label">Doğruluk</span>
+            <span class="sb-val" id="summary-accuracy">94%</span>
+          </div>
+          <div class="sum-box">
+            <span class="sb-label">Maks Kombo</span>
+            <span class="sb-val" id="summary-combo">14x</span>
+          </div>
+          <div class="sum-box">
+            <span class="sb-label">Ort. Tepki Süresi</span>
+            <span class="sb-val" id="summary-reaction">340ms</span>
+          </div>
+          <div class="sum-box">
+            <span class="sb-label">Bilişsel Artış</span>
+            <span class="sb-val text-green" id="summary-boost">+12 BPI</span>
+          </div>
+        </div>
+
+        <div class="summary-insights" id="summary-insights-text">
+          Nöronal frenleme refleksiniz harika bir seviyede! İnhibitör kontrol eşiğiniz %8 arttı.
+        </div>
+
+        <div class="summary-actions">
+          <button id="btn-summary-replay" class="btn-secondary">Tekrar Dene</button>
+          <button id="btn-summary-continue" class="btn-primary">Devam Et & Gelişimi Kaydet</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Sound Engine, Analytics, Engine Core, Game Modules, Core App -->
+  <script src="js/audio.js"></script>
+  <script src="js/analytics.js"></script>
+
+  <!-- Engine Base -->
+  <script src="js/engine/DifficultyManager.js"></script>
+  <script src="js/engine/BaseGame.js"></script>
+  <script src="js/engine/GameRegistry.js"></script>
+
+  <!-- Games -->
+  <script src="js/games/chromashift.js"></script>
+  <script src="js/games/synapselink.js"></script>
+  <script src="js/games/echomatrix.js"></script>
+  <script src="js/games/temporalspeed.js"></script>
+  <script src="js/games/memorymatrix.js"></script>
+  <script src="js/games/lostinmigration.js"></script>
+  <script src="js/games/speedmatch.js"></script>
+  <script src="js/games/pinballrecall.js"></script>
+  <script src="js/games/trainofthought.js"></script>
+  <script src="js/games/spatialspeed.js"></script>
+  <script src="js/games/facesnames.js"></script>
+  < script src="js/games/targettracker.js">
+  </script>
+    <script src="js/games/flashreflex.js"></script>
+    <script src="js/games/soundsequence.js"></script>
+    <script src="js/games/selectivefocus.js"></script>
+    <script src="js/games/patternburst.js"></script>
+    <script src="js/games/brainshift.js"></script>
+    <script src="js/games/colormatch.js"></script>
+    <script src="js/games/pathfinder.js"></script>
+    <script src="js/games/balancescale.js"></script>
+    <script src="js/games/chalkboard.js"></script>
+    <script src="js/games/wordbubbles.js"></script>
+    <script src="js/games/numbercascade.js"></script>
+    <script src="js/games/spatialspeedmatch.js"></script>
+    <script src="js/games/peripheralvision.js"></script>
+    <script src="js/games/rhythmtap.js"></script>
+    <script src="js/games/disjointedrules.js"></script>
+    <script src="js/games/towerlogic.js"></script>
+    <script src="js/games/spatialrotation.js"></script>
+    <script src="js/games/anagramburst.js"></script>
+    <script src="js/games/quantumgrid.js"></script>
+
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
